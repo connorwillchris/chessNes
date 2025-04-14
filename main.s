@@ -1,3 +1,5 @@
+.include "nes.inc"
+
 .segment "HEADER"
 	.byte "NES", $1a
 	.byte 2	; 2x 16KiB PRG code
@@ -13,6 +15,7 @@
 
 ; NES linker config requires a startup section, even if it's empty
 .segment "STARTUP"
+
 .segment "CODE"
 
 RESET:
@@ -20,13 +23,13 @@ RESET:
 	sei ; disable IRQs
 	cld ; disable decimal mode
 	ldx #$40
-	stx $4017
+	stx APU_PAD2
 	ldx #$ff ; disable APU frame IRQ
 	txs ; set up stack
 	inx ; now it's 0
-	stx $2000 ; disable NMI
-	stx $2001 ; disable rendering
-	stx $4010 ; disable DMC IRQs
+	stx PPU_CTRL1 ; disable NMI
+	stx PPU_CTRL2 ; disable rendering
+	stx APU_MODCTRL ; disable DMC IRQs
 
 vblankwait1:
 	bit $2002
@@ -46,39 +49,39 @@ clearmem:
 	bne clearmem
 
 vblankwait2:
-	bit $2002
+	bit PPU_STATUS
 	bpl vblankwait2
 
 main:
 load_palettes:
-	lda $2002
+	lda PPU_STATUS
 	lda #$3f
-	sta $2006
+	sta PPU_VRAM_ADDR2
 	lda #$00
-	sta $2006
+	sta PPU_VRAM_ADDR2
 	ldx #$00
 @loop:
 	lda palettes, x
-	sta $2007
+	sta PPU_VRAM_IO
 	inx
 	cpx #$20
 	bne @loop
 
 enable_rendering:
 	lda #%10000000 ; enable NMI
-	sta $2000
+	sta PPU_CTRL1
 	lda #%00010000 ; enable sprites
-	sta $2001
+	sta PPU_CTRL2
 
 main_loop:
 	jmp main_loop
 
 NMI:
 	ldx #$00 ; set SPRITE RAM address to 0
-	stx $2003
+	stx PPU_SPR_ADDR
 @loop:
 	lda hello, x
-	sta $2004
+	sta PPU_SPR_IO
 	inx
 	cpx #28
 	bne @loop

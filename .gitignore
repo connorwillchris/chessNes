@@ -1,3 +1,4 @@
 *.dbgfile
 *.nes
 *.o
+*.deb
