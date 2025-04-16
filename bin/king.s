@@ -1,0 +1,19 @@
+; king and queen have the same bottom.
+
+.byte %00011000
+.byte %00111100
+.byte %00011000
+.byte %00011000
+.byte %00000000
+.byte %00111100
+.byte %00111100
+.byte %00011000
+
+.byte %00011000
+.byte %00111100
+.byte %00000000
+.byte %11111111
+;.byte %00000000
+;.byte %00000000
+;.byte %00000000
+;.byte %00000000
