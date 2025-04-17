@@ -81,8 +81,8 @@ vblank2:
 load_palettes:
     lda palette_data, x
     sta $2007 ; $3F00, $3F01, $3F02 => $3F1F
-    inx
-    CPx #$20
+    inx 
+    cpx #$20
     bne load_palettes   
 
     ldx #$00
@@ -90,7 +90,7 @@ load_palettes:
 load_sprites:
 	lda sprite_data, x
 	sta $0200, x
-	inx
+	inx 
 	cpx #$08
 	bne load_sprites
 
@@ -110,14 +110,14 @@ load_sprites:
     sta $2006
 clear_nametable:
     sta $2007
-    inx
+    inx 
     bne clear_nametable
-    iny
+    iny 
     cpy #$08
     bne clear_nametable
     
 ; Enable interrupts
-    cli
+    cli 
     lda #%10010000 ; enable NMI change background to use second chr set of tiles ($1000)
     sta $2000
     ; Enabling sprites and background for left-most 8 pixels
@@ -131,7 +131,7 @@ mainloop:
 NMI:
 	lda #$02 ; copy sprite data from $0200 => PPU memory for display
 	sta $4014
-	rti
+	rti 
 
 palette_data:
 ;	Background Palette
