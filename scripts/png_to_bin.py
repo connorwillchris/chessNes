@@ -30,4 +30,5 @@ def bitmap_image(path):
             
             print("")
 
-bitmap_image(images[5])
+#bitmap_image(images[5])
+bitmap_image("assets/selection.png")
