@@ -77,9 +77,8 @@ load_palettes:
     lda palette_data, x
     sta $2007 ; $3F00, $3F01, $3F02 => $3F1F
     inx
-    cpx #$20
+    cpx #$20 ; 32 bytes of data
     bne load_palettes
-
 ;   set the address into the ZP memory of ptr_world.
     lda #<world_data
     sta ptr_world
@@ -123,7 +122,7 @@ load_sprites:
 ; $2000 and continuing on to $2400 (which is fine because we have
 ; vertical mirroring on. If we used horizontal, we'd have to do
 ; this for $2000 and $2800)
-;   .include "nametable_clr.s"
+;  .include "nametable_clr.s"
 
 ;   Enable interrupts
     cli
@@ -146,12 +145,16 @@ NMI:
 	sta $4014
 	rti
 
+;
+; DATA
+;
+
 palette_data:
 ;	Background Palette
-	.byte $0f, $10, $20, $30
-	.byte $0f, $00, $00, $00
-	.byte $0f, $00, $00, $00
-	.byte $0f, $00, $00, $00
+    .byte $0f, $00, $10, $30
+    .byte $0f, $0c, $21, $32
+    .byte $0f, $05, $16, $27
+    .byte $0f, $0b, $1a, $29
 
 ;	Sprite Palette
   	.byte $0f, $20, $00, $00
@@ -169,8 +172,8 @@ sprite_data:
     .byte $10, $03, %11000000,  $08 ; selection quarter 4
 
 world_data:
-;   .incbin "world.bin"
-;    .byte $00, $01, $02, $03
+    .include "world.s"
 
 .segment "CHARS"
-	.include "chars.s"
+	;.include "chars.s"
+    .incbin "assets/master.chr"
