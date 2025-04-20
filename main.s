@@ -1,7 +1,7 @@
 ; vim: set syntax=asm_ca65:
 .segment "HEADER"
 	.byte "NES"
-	.byte $1a
+    .byte $1a
 	.byte $02 ; 2 * 16KB PRG ROM
 	.byte $01 ; 1 * 8KB CHR ROM
 	.byte %00000001 ; mapper and mirroring
@@ -12,7 +12,8 @@
 	.byte $00, $00, $00, $00, $00 ; filler bytes
 
 ;	CONSTANTS OR TEMPORARY VARIABLES
-SPRITE_LEN = 12
+
+SPRITE_LEN = 16 ; amount of bytes
 
 .segment "VECTORS"
     .word NMI
@@ -20,18 +21,18 @@ SPRITE_LEN = 12
 	.word 0
 
 .segment "ZEROPAGE"
-position:
-	.res 2
+ptr_world:
+    .res 2
 
 .segment "STARTUP"
 RESET:
-    SEI ; Disables all interrupts
-    CLD ; disable decimal mode
+    sei ; Disables all interrupts
+    cld ; disable decimal mode
     ; Disable sound IRQ
     ldx #$40
     stx $4017
     ; Initialize the stack register
-    ldx #$FF
+;   ldx #$FF
     txs
     inx ; #$FF + 1 => #$00
     ; Zero out the PPU registers
@@ -57,30 +58,58 @@ clearmem:
     sta $0200, x ; $0200 => $02FF
     lda #$00
     inx
-    bne clearmem 
-   
+    bne clearmem
+
 vblank2:
     bit $2002
     bpl vblank2
+;   SET SPRITE RANGE
     lda #$02
     sta $4014
-
-    ; $3F00
+    ;nop ; must wait a few cycles
     lda #$3F
     sta $2006
     lda #$00
     sta $2006
+;   INITIALIZE NEXT LOOP
     ldx #$00
-
 load_palettes:
     lda palette_data, x
     sta $2007 ; $3F00, $3F01, $3F02 => $3F1F
-    inx 
+    inx
     cpx #$20
-    bne load_palettes   
+    bne load_palettes
 
+;   set the address into the ZP memory of ptr_world.
+    lda #<world_data
+    sta ptr_world
+    lda #<world_data
+    sta ptr_world + 1
+;   setup address in PPU for nametable data
     ldx #$00
-
+    ldy #$00
+    lda $2002
+    lda #$20
+    sta $2006
+    lda #$00
+    sta $2006
+load_world:
+    lda (ptr_world), y
+    sta $2007
+    iny
+    cpx #$03
+    bne @loop1
+    cpy #$c0
+    beq @done_loading_world
+@loop1:
+    cpy #$00
+    bne load_world
+    inx
+    inc ptr_world + 1 ; increment the world variable, adding 256 to the address essentially
+    jmp load_world
+@done_loading_world:
+;   initialize next loop
+    ldx #$00
 load_sprites:
 	lda sprite_data, x
 	sta $0200, x
@@ -94,56 +123,32 @@ load_sprites:
 ; $2000 and continuing on to $2400 (which is fine because we have
 ; vertical mirroring on. If we used horizontal, we'd have to do
 ; this for $2000 and $2800)
-    ldx #$00
-    ldy #$00
-    lda $2002
-    lda #$20
-    sta $2006
-    lda #$00
-    sta $2006
-clear_nametable:
-    sta $2007
-    inx 
-    bne clear_nametable
-    iny 
-    cpy #$08
-    bne clear_nametable
-    
-; Enable interrupts
-    cli 
+;   .include "nametable_clr.s"
+
+;   Enable interrupts
+    cli
     lda #%10010000 ; enable NMI change background to use second chr set of tiles ($1000)
     sta $2000
-    ; Enabling sprites and background for left-most 8 pixels
-    ; Enable sprites and background
+;   Enabling sprites and background for left-most 8 pixels
+;   Enable sprites and background
     lda #%00011110 ; enable the first two bits
     sta $2001
 
 mainloop:
 ;	DO CONTROLLERS
-	jsr controllers
-    jmp mainloop
+;	jsr controllers
 
-controllers:
-;	initialize the output memory
-	lda #1
-	sta $4016
-	lda #0
-	sta $4016
-@loop:
-	lda $4016
-	lsr a
-	rol position
-	bcc @loop
-	rts
+;   INFINITE LOOP
+    jmp mainloop
 
 NMI:
 	lda #$02 ; copy sprite data from $0200 => PPU memory for display
 	sta $4014
-	rti 
+	rti
 
 palette_data:
 ;	Background Palette
-	.byte $0f, $00, $00, $00
+	.byte $0f, $10, $20, $30
 	.byte $0f, $00, $00, $00
 	.byte $0f, $00, $00, $00
 	.byte $0f, $00, $00, $00
@@ -155,9 +160,17 @@ palette_data:
  	.byte $0f, $00, $00, $00
 
 sprite_data:
-  	.byte $08, $00, $00, $00
-  	.byte $10, $01, $00, $00
-	.byte $08, $02, $00, $08
+; 	.byte $08, $00, $00,        $00 ; sprite top
+; 	.byte $10, $01, $00,        $00 ; sprite bottom
+	.byte $08, $03, $00,        $00 ; selection quarter
+    .byte $10, $03, %10000000,  $00 ; selection quarter 2
+
+    .byte $08, $03, %01000000,  $08 ; selection quarter 3
+    .byte $10, $03, %11000000,  $08 ; selection quarter 4
+
+world_data:
+;   .incbin "world.bin"
+;    .byte $00, $01, $02, $03
 
 .segment "CHARS"
 	.include "chars.s"

@@ -2,6 +2,11 @@
 import PIL
 from PIL import Image
 
+### UPDATE THIS ###
+# TODO  Make sure that we can
+#       export as a high-byte and low-byte
+#       format.
+
 ALPHA = (0, 0, 0, 0)
 
 images = [
