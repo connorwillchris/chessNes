@@ -1,9 +1,0 @@
-; SELECTION CHARACTER
-.byte %11111110
-.byte %10000000
-.byte %10000000
-.byte %10000000
-.byte %10000000
-.byte %10000000
-.byte %10000000
-.byte %00000000

@@ -13,7 +13,7 @@
 
 ;	CONSTANTS OR TEMPORARY VARIABLES
 
-SPRITE_LEN = 16 ; amount of bytes
+;SPRITE_LEN = 16 ; amount of bytes
 
 .segment "VECTORS"
     .word NMI
@@ -63,6 +63,7 @@ clearmem:
 vblank2:
     bit $2002
     bpl vblank2
+
 ;   SET SPRITE RANGE
     lda #$02
     sta $4014
@@ -79,7 +80,7 @@ load_palettes:
     inx
     cpx #$20
     bne load_palettes
-
+;	LOAD THE ADDRESS OF THE WORLD
 ;   set the address into the ZP memory of ptr_world.
     lda #<world_data
     sta ptr_world
@@ -93,6 +94,7 @@ load_palettes:
     sta $2006
     lda #$00
     sta $2006
+
 load_world:
     lda (ptr_world), y
     sta $2007
@@ -110,12 +112,16 @@ load_world:
 @done_loading_world:
 ;   initialize next loop
     ldx #$00
-load_sprites:
-	lda sprite_data, x
-	sta $0200, x
-	inx
-	cpx #SPRITE_LEN
-	bne load_sprites
+set_attributes:
+    lda #$55
+    sta $2007
+    inx
+    cpx #$40 ; 64 in decimal
+    bne set_attributes
+;   END LOOP
+    ldx #$00
+    lda #$00
+
 ; Clear the nametables- this isn't necessary in most emulators unless
 ; you turn on random memory power-on mode, but on real hardware
 ; not doing this means that the background / nametable will have
@@ -123,8 +129,7 @@ load_sprites:
 ; $2000 and continuing on to $2400 (which is fine because we have
 ; vertical mirroring on. If we used horizontal, we'd have to do
 ; this for $2000 and $2800)
-;   .include "nametable_clr.s"
-
+;.include "nametable_clr.s"
 ;   Enable interrupts
     cli
     lda #%10010000 ; enable NMI change background to use second chr set of tiles ($1000)
@@ -148,29 +153,22 @@ NMI:
 
 palette_data:
 ;	Background Palette
-	.byte $0f, $10, $20, $30
-	.byte $0f, $00, $00, $00
-	.byte $0f, $00, $00, $00
-	.byte $0f, $00, $00, $00
+    .byte $0f, $00, $10, $30
+    .byte $0f, $0c, $21, $32
+    .byte $0f, $05, $16, $27
+    .byte $0f, $0b, $1a, $29
 
-;	Sprite Palette
-  	.byte $0f, $20, $00, $00
-  	.byte $0f, $00, $00, $00
-  	.byte $0f, $00, $00, $00
- 	.byte $0f, $00, $00, $00
+;   sprite palettes
 
 sprite_data:
-; 	.byte $08, $00, $00,        $00 ; sprite top
-; 	.byte $10, $01, $00,        $00 ; sprite bottom
-	.byte $08, $03, $00,        $00 ; selection quarter
-    .byte $10, $03, %10000000,  $00 ; selection quarter 2
-
-    .byte $08, $03, %01000000,  $08 ; selection quarter 3
-    .byte $10, $03, %11000000,  $08 ; selection quarter 4
+;	SPRITE PALETTE
+;   .byte $0f,$00,$10,$30
+;   .byte $0f,$0c,$21,$32
+;   .byte $0f,$05,$16,$27
+;   .byte $0f,$0b,$1a,$29
 
 world_data:
-;   .incbin "world.bin"
-;    .byte $00, $01, $02, $03
+	.incbin "../bin/nametable.nam"
 
 .segment "CHARS"
-	.include "chars.s"
+	.incbin "../bin/master.chr"

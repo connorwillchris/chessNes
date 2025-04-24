@@ -1,7 +1,7 @@
 all: build
 
 build:
-	ca65 main.s -o main.o --debug-info
+	ca65 src/main.s -o main.o --debug-info
 	ld65 main.o -o chess.nes -t nes --dbgfile chess.dbgfile
 
 run: build
