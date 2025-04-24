@@ -78,9 +78,12 @@ load_palettes:
     lda palette_data, x
     sta $2007 ; $3F00, $3F01, $3F02 => $3F1F
     inx
-    cpx #$20
+    cpx #$20 ; 32 bytes of data
     bne load_palettes
+<<<<<<< HEAD:src/main.s
 ;	LOAD THE ADDRESS OF THE WORLD
+=======
+>>>>>>> a2fcb32615d44498f30d64f88069d47751791fa4:main.s
 ;   set the address into the ZP memory of ptr_world.
     lda #<world_data
     sta ptr_world
@@ -129,7 +132,12 @@ set_attributes:
 ; $2000 and continuing on to $2400 (which is fine because we have
 ; vertical mirroring on. If we used horizontal, we'd have to do
 ; this for $2000 and $2800)
+<<<<<<< HEAD:src/main.s
 ;.include "nametable_clr.s"
+=======
+;  .include "nametable_clr.s"
+
+>>>>>>> a2fcb32615d44498f30d64f88069d47751791fa4:main.s
 ;   Enable interrupts
     cli
     lda #%10010000 ; enable NMI change background to use second chr set of tiles ($1000)
@@ -151,6 +159,10 @@ NMI:
 	sta $4014
 	rti
 
+;
+; DATA
+;
+
 palette_data:
 ;	Background Palette
     .byte $0f, $00, $10, $30
@@ -168,7 +180,15 @@ sprite_data:
 ;   .byte $0f,$0b,$1a,$29
 
 world_data:
+<<<<<<< HEAD:src/main.s
 	.incbin "../bin/nametable.nam"
 
 .segment "CHARS"
 	.incbin "../bin/master.chr"
+=======
+    .include "world.s"
+
+.segment "CHARS"
+	;.include "chars.s"
+    .incbin "assets/master.chr"
+>>>>>>> a2fcb32615d44498f30d64f88069d47751791fa4:main.s
