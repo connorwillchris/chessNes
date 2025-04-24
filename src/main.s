@@ -28,7 +28,7 @@ RESET:
     ldx #$40
     stx $4017
     ; Initialize the stack register
-;   ldx #$FF
+    ldx #$FF
     txs
     inx ; #$FF + 1 => #$00
     ; Zero out the PPU registers
@@ -107,15 +107,15 @@ load_world:
 @done_loading_world:
 ;   initialize next loop
     ldx #$00
-;set_attributes:
-;   lda #$55
-;   sta $2007
-;   inx
-;   cpx #$40 ; 64 in decimal
-;   bne set_attributes
+set_attributes:
+    lda #$55
+    sta $2007
+    inx
+    cpx #$40 ; 64 in decimal
+    bne set_attributes
 ;   END LOOP
-;   ldx #$00
-;   lda #$00
+    ldx #$00
+    lda #$00
 
 ; Clear the nametables- this isn't necessary in most emulators unless
 ; you turn on random memory power-on mode, but on real hardware
@@ -151,10 +151,6 @@ NMI:
 ;
 
 palette_data:
-;	Background Palette
-;   .byte $0f, $00, $10, $30
-;   .byte $0f, $0c, $21, $32
-;   .byte $0f, $05, $16, $27
 	.incbin "../bin/palettes.pal"
 
 sprite_data:
