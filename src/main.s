@@ -11,10 +11,6 @@
 	.byte $00
 	.byte $00, $00, $00, $00, $00 ; filler bytes
 
-;	CONSTANTS OR TEMPORARY VARIABLES
-
-;SPRITE_LEN = 16 ; amount of bytes
-
 .segment "VECTORS"
     .word NMI
     .word RESET
@@ -80,11 +76,7 @@ load_palettes:
     inx
     cpx #$20 ; 32 bytes of data
     bne load_palettes
-<<<<<<< HEAD:src/main.s
 ;	LOAD THE ADDRESS OF THE WORLD
-=======
->>>>>>> a2fcb32615d44498f30d64f88069d47751791fa4:main.s
-;   set the address into the ZP memory of ptr_world.
     lda #<world_data
     sta ptr_world
     lda #<world_data
@@ -115,15 +107,15 @@ load_world:
 @done_loading_world:
 ;   initialize next loop
     ldx #$00
-set_attributes:
-    lda #$55
-    sta $2007
-    inx
-    cpx #$40 ; 64 in decimal
-    bne set_attributes
+;set_attributes:
+;   lda #$55
+;   sta $2007
+;   inx
+;   cpx #$40 ; 64 in decimal
+;   bne set_attributes
 ;   END LOOP
-    ldx #$00
-    lda #$00
+;   ldx #$00
+;   lda #$00
 
 ; Clear the nametables- this isn't necessary in most emulators unless
 ; you turn on random memory power-on mode, but on real hardware
@@ -132,12 +124,8 @@ set_attributes:
 ; $2000 and continuing on to $2400 (which is fine because we have
 ; vertical mirroring on. If we used horizontal, we'd have to do
 ; this for $2000 and $2800)
-<<<<<<< HEAD:src/main.s
-;.include "nametable_clr.s"
-=======
 ;  .include "nametable_clr.s"
 
->>>>>>> a2fcb32615d44498f30d64f88069d47751791fa4:main.s
 ;   Enable interrupts
     cli
     lda #%10010000 ; enable NMI change background to use second chr set of tiles ($1000)
@@ -158,37 +146,21 @@ NMI:
 	lda #$02 ; copy sprite data from $0200 => PPU memory for display
 	sta $4014
 	rti
-
 ;
 ; DATA
 ;
 
 palette_data:
 ;	Background Palette
-    .byte $0f, $00, $10, $30
-    .byte $0f, $0c, $21, $32
-    .byte $0f, $05, $16, $27
-    .byte $0f, $0b, $1a, $29
-
-;   sprite palettes
+;   .byte $0f, $00, $10, $30
+;   .byte $0f, $0c, $21, $32
+;   .byte $0f, $05, $16, $27
+	.incbin "../bin/palettes.pal"
 
 sprite_data:
-;	SPRITE PALETTE
-;   .byte $0f,$00,$10,$30
-;   .byte $0f,$0c,$21,$32
-;   .byte $0f,$05,$16,$27
-;   .byte $0f,$0b,$1a,$29
 
 world_data:
-<<<<<<< HEAD:src/main.s
 	.incbin "../bin/nametable.nam"
 
 .segment "CHARS"
-	.incbin "../bin/master.chr"
-=======
-    .include "world.s"
-
-.segment "CHARS"
-	;.include "chars.s"
-    .incbin "assets/master.chr"
->>>>>>> a2fcb32615d44498f30d64f88069d47751791fa4:main.s
+    .incbin "../bin/master.chr"
