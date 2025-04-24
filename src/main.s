@@ -79,7 +79,7 @@ load_palettes:
 ;	LOAD THE ADDRESS OF THE WORLD
     lda #<world_data
     sta ptr_world
-    lda #<world_data
+    lda #>world_data
     sta ptr_world + 1
 ;   setup address in PPU for nametable data
     ldx #$00
@@ -160,7 +160,7 @@ palette_data:
 sprite_data:
 
 world_data:
-	.incbin "../bin/nametable.nam"
+	.include "../world.s"
 
 .segment "CHARS"
     .incbin "../bin/master.chr"
