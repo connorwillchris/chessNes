@@ -156,7 +156,7 @@ palette_data:
 sprite_data:
 
 world_data:
-	.include "../world.s"
+	.include "world.s"
 
 .segment "CHARS"
     .incbin "../bin/master.chr"
