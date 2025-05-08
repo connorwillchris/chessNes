@@ -1,3 +1,6 @@
+; TEMPORARY FILE FOR NAMETABLE CLEARING
+; JUST IN CASE I NEED IT FOR LATER.
+
 ;nametable_clear:
     ldx #$00
     ldy #$00
